@@ -9,6 +9,7 @@ import androidx.navigation.navArgument
 import com.flindigital.watermeter.pages.customers.CustomerListScreen
 import com.flindigital.watermeter.pages.detail.DetailScreen
 import com.flindigital.watermeter.pages.camera.CameraScreen
+import com.flindigital.watermeter.pages.home.HomeScreen
 
 object Routes {
     const val HOME = "home"
@@ -20,7 +21,7 @@ object Routes {
 fun NavGraph(navController: NavHostController) {
     NavHost(navController = navController, startDestination = Routes.HOME) {
         composable(Routes.HOME) {
-            CustomerListScreen(onRecordClick = { customer ->
+            HomeScreen(onNavigate = { customer ->
                 navController.navigate("${Routes.CAMERA}/${customer.userId}")
             })
         }

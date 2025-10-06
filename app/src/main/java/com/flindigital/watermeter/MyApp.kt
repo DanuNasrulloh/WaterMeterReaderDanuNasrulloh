@@ -9,10 +9,5 @@ import com.flindigital.watermeter.ui.navigation.NavGraph
 @Composable
 fun MyApp() {
     val navController = rememberNavController()
-
-    MaterialTheme {
-        Surface {
-            NavGraph(navController = navController)
-        }
-    }
+    Surface { NavGraph(navController) }
 }

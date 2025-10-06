@@ -1,5 +1,6 @@
 package com.flindigital.watermeter.pages.detail
 
+import android.R
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -37,10 +38,17 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import android.widget.ImageView
+import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material.icons.filled.ArrowBack
+import androidx.compose.material.icons.filled.LocationOn
+import androidx.compose.material3.ButtonDefaults
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.viewinterop.AndroidView
 import com.bumptech.glide.Glide
 import java.io.File
 import com.flindigital.watermeter.data.DummyCustomers
+import androidx.compose.ui.text.font.FontWeight
+
 
 private val HeaderGreen = Color(0xFF14B8A6)
 private val LightGray = Color(0xFFF1F5F9)
@@ -69,18 +77,25 @@ fun DetailScreen(
                 modifier = Modifier.fillMaxWidth().padding(16.dp),
                 verticalAlignment = Alignment.CenterVertically
             ) {
+                Icon(
+                    imageVector = Icons.Default.ArrowBack,
+                    contentDescription = "Back",
+                    tint = Color.White,
+                    modifier = Modifier
+                        .size(30.dp)
+                        .padding(end = 8.dp)
+                )
                 Text(
                     text = "Catat Data",
                     style = MaterialTheme.typography.titleMedium.copy(color = Color.White),
                     modifier = Modifier.weight(1f)
                 )
-                Icon(Icons.Filled.Search, contentDescription = null, tint = Color.White)
             }
         }
 
         Column(
             modifier = Modifier
-                .fillMaxSize()
+                .weight(1f)
                 .background(LightGray)
                 .verticalScroll(rememberScrollState())
                 .padding(12.dp),
@@ -99,7 +114,7 @@ fun DetailScreen(
                             modifier = Modifier.weight(1f)
                         )
                         Icon(
-                            imageVector = Icons.Filled.Search,
+                            imageVector = Icons.Filled.LocationOn,
                             contentDescription = null,
                             tint = HeaderGreen
                         )
@@ -116,13 +131,17 @@ fun DetailScreen(
                 }
             }
 
-            Text("Foto", style = MaterialTheme.typography.bodySmall, color = Color(0xFF70757A))
+            Text(
+                "Foto",
+                style = MaterialTheme.typography.bodyMedium.copy(fontWeight = FontWeight.Bold),
+                color = Color(0xFF70757A)
+            )
             Row(horizontalArrangement = Arrangement.spacedBy(12.dp)) {
                 PhotoThumb(path = fullPath, width = 92.dp, height = 92.dp)
                 PhotoThumb(path = cropPath, modifier = Modifier.weight(1f), height = 100.dp)
             }
 
-            Text("Angka Meter", style = MaterialTheme.typography.bodySmall, color = Color(0xFF70757A))
+            Text("Angka Meter", style = MaterialTheme.typography.bodyMedium.copy(fontWeight = FontWeight.Bold), color = Color(0xFF70757A))
             OutlinedTextField(
                 value = meterNumber,
                 onValueChange = { meterNumber = it },
@@ -131,12 +150,18 @@ fun DetailScreen(
                 shape = RoundedCornerShape(8.dp)
             )
 
-            Spacer(modifier = Modifier.height(8.dp))
+            Spacer(modifier = Modifier.height(10.dp))
             Button(
                 onClick = { onSave(meterNumber) },
-                modifier = Modifier.fillMaxWidth(),
-                shape = RoundedCornerShape(12.dp)
-            ) {
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(12.dp),
+                shape = RoundedCornerShape(6.dp),
+                colors = ButtonDefaults.buttonColors(
+                    containerColor = HeaderGreen,
+                    contentColor = Color.White
+                )
+            ){
                 Text("Simpan Data")
             }
         }
@@ -180,9 +205,35 @@ private fun InfoRow(label: String, value: String) {
     Row(modifier = Modifier.fillMaxWidth()) {
         Text(
             text = label,
+            style = MaterialTheme.typography.labelMedium,
             color = Color(0xFF70757A),
             modifier = Modifier.weight(1f)
         )
-        Text(text = value)
+        Text(
+            text = value,
+            style = MaterialTheme.typography.labelLarge
+        )
     }
 }
+
+@Preview(showBackground = true)
+@Composable
+private fun DetailScreenPreview() {
+    MaterialTheme(
+        colorScheme = androidx.compose.material3.lightColorScheme(
+            primary = HeaderGreen,
+            surface = LightGray,
+            background = LightGray
+        )
+    ) {
+        val sample = DummyCustomers.customers.firstOrNull()
+        DetailScreen(
+            userId = sample?.userId ?: "0001",
+            fullPath = null,
+            cropPath = null,
+            onSave = {}
+        )
+    }
+}
+
+

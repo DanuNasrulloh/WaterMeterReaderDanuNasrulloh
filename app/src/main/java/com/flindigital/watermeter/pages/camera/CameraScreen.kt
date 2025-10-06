@@ -143,7 +143,7 @@ fun CameraScreen(
                         .build()
                     imageCapture = imgCapture
 
-                    preview.surfaceProvider = pv.surfaceProvider
+                    preview.setSurfaceProvider(pv.surfaceProvider)
                     try {
                         cameraProvider.unbindAll()
                         val camera = cameraProvider.bindToLifecycle(

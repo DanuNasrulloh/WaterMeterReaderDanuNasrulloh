@@ -5,6 +5,7 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
@@ -23,6 +24,7 @@ import androidx.compose.material.icons.filled.Search
 import androidx.compose.material.icons.outlined.LocationOn
 import androidx.compose.material.icons.outlined.Star
 import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Icon
@@ -30,6 +32,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
+import androidx.compose.material3.lightColorScheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -40,163 +43,49 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.flindigital.watermeter.data.DummyCustomers
 import com.flindigital.watermeter.data.model.Customer
+import kotlin.collections.get
 
-private val HeaderGreen = Color(0xFF14B8A6)
 private val LightGray = Color(0xFFF1F5F9)
 private val WarningOrange = Color(0xFFFF8A00)
 
-@Composable
-fun CustomerListScreen(onRecordClick: (Customer) -> Unit = {}) {
-    var selectedTab by remember { mutableStateOf(CustomerTab.NotRecorded) }
-    var query by remember { mutableStateOf("") }
-
-    val all = DummyCustomers.customers
-    val filtered = all.filter { c ->
-        (selectedTab == CustomerTab.NotRecorded && !c.isRecorded ||
-                selectedTab == CustomerTab.Recorded && c.isRecorded) &&
-                (c.userName.contains(query, ignoreCase = true) ||
-                        c.userId.contains(query, ignoreCase = true) ||
-                        c.fullAddress.contains(query, ignoreCase = true))
-    }
-
-    Column(modifier = Modifier.fillMaxSize()) {
-        HeaderSection(
-            selectedTab = selectedTab,
-            onTabSelected = { selectedTab = it },
-            query = query,
-            onQueryChange = { query = it }
-        )
-
-        LazyColumn(
-            modifier = Modifier
-                .fillMaxSize()
-                .background(LightGray)
-                .padding(horizontal = 12.dp, vertical = 8.dp),
-            verticalArrangement = Arrangement.spacedBy(12.dp)
-        ) {
-            items(filtered) { customer ->
-                CustomerItem(customer = customer, onRecordClick = onRecordClick)
-            }
-        }
-    }
-}
 
 @Composable
-private fun HeaderSection(
-    selectedTab: CustomerTab,
-    onTabSelected: (CustomerTab) -> Unit,
-    query: String,
-    onQueryChange: (String) -> Unit
+fun CustomerListScreen(
+    customers: List<Customer> = emptyList(),
+    onRecordClick: (Customer) -> Unit = {}
 ) {
-    Surface(color = HeaderGreen) {
-        Column(modifier = Modifier.fillMaxWidth().padding(16.dp)) {
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                Text(
-                    text = "Daftar Pelanggan",
-                    style = MaterialTheme.typography.titleLarge.copy(
-                        color = Color.White,
-                        fontWeight = FontWeight.SemiBold
-                    ),
-                    modifier = Modifier.weight(1f)
-                )
-                HeaderMonthPill()
-            }
-            Spacer(modifier = Modifier.height(12.dp))
-            SegmentedTabs(selectedTab = selectedTab, onTabSelected = onTabSelected)
-            Spacer(modifier = Modifier.height(12.dp))
-            OutlinedTextField(
-                value = query,
-                onValueChange = onQueryChange,
-                leadingIcon = { Icon(Icons.Filled.Search, contentDescription = null) },
-                placeholder = { Text("Cari…") },
-                singleLine = true,
-                modifier = Modifier.fillMaxWidth(),
-                shape = RoundedCornerShape(10.dp)
-            )
-        }
-    }
-}
-
-@Composable
-private fun HeaderMonthPill() {
-    Surface(
-        color = Color(0xFF0EA5A3),
-        contentColor = Color.White,
-        shape = RoundedCornerShape(16.dp)
-    ) {
-        Row(
-            modifier = Modifier.padding(horizontal = 10.dp, vertical = 6.dp),
-            verticalAlignment = Alignment.CenterVertically
-        ) {
-            Text(text = "Sept 2025", fontSize = 12.sp)
-            Icon(
-                imageVector = Icons.Filled.ArrowDropDown,
-                contentDescription = null,
-                modifier = Modifier.size(18.dp)
-            )
-        }
-    }
-}
-
-@Composable
-private fun SegmentedTabs(
-    selectedTab: CustomerTab,
-    onTabSelected: (CustomerTab) -> Unit
-) {
-    Row(
+    LazyColumn(
         modifier = Modifier
-            .fillMaxWidth()
-            .clip(RoundedCornerShape(10.dp))
-            .background(Color(0xFF0EA5A3)),
-        verticalAlignment = Alignment.CenterVertically
+            .fillMaxSize()
+            .background(LightGray)
+            .padding(horizontal = 12.dp, vertical = 8.dp),
+        verticalArrangement = Arrangement.spacedBy(12.dp)
     ) {
-        Segment(
-            text = "Belum Dicatat",
-            selected = selectedTab == CustomerTab.NotRecorded,
-            onClick = { onTabSelected(CustomerTab.NotRecorded) },
-            modifier = Modifier.weight(1f)
-        )
-        Segment(
-            text = "Sudah Dicatat",
-            selected = selectedTab == CustomerTab.Recorded,
-            onClick = { onTabSelected(CustomerTab.Recorded) },
-            modifier = Modifier.weight(1f)
-        )
+        items(customers, key = { it.userId }) { customer ->
+            CustomerItem(customer = customer, onRecordClick = onRecordClick)
+        }
+        item { Spacer(modifier = Modifier.height(24.dp)) }
     }
 }
 
 @Composable
-private fun Segment(text: String, selected: Boolean, onClick: () -> Unit, modifier: Modifier = Modifier) {
-    val background = if (selected) Color.White else Color(0xFF0EA5A3)
-    val content = if (selected) Color(0xFF0EA5A3) else Color.White
-    Box(
-        modifier = modifier
-            .background(background)
-            .clickable(onClick = onClick)
-            .padding(vertical = 10.dp),
-        contentAlignment = Alignment.Center
-    ) {
-        Text(text = text, color = content, fontSize = 13.sp, fontWeight = FontWeight.Medium)
-    }
-}
-
-@Composable
-private fun CustomerItem(customer: Customer, onRecordClick: (Customer) -> Unit) {
+fun CustomerItem(customer: Customer, onRecordClick: (Customer) -> Unit) {
     Card(
         colors = CardDefaults.cardColors(containerColor = Color.White),
         shape = RoundedCornerShape(10.dp),
         elevation = CardDefaults.cardElevation(defaultElevation = 0.dp)
     ) {
-        Column(modifier = Modifier.fillMaxWidth().padding(12.dp)) {
+        Column(modifier = Modifier
+            .fillMaxWidth()
+            .padding(12.dp)) {
+
             Row(verticalAlignment = Alignment.CenterVertically) {
-                // Left decorative icon
+                // icon kecil di kiri
                 Box(
                     modifier = Modifier
                         .size(22.dp)
@@ -205,7 +94,7 @@ private fun CustomerItem(customer: Customer, onRecordClick: (Customer) -> Unit) 
                     contentAlignment = Alignment.Center
                 ) {
                     Icon(
-                        imageVector = if (customer.isRecorded) Icons.Outlined.Star else Icons.Outlined.Star,
+                        imageVector = Icons.Outlined.Star,
                         contentDescription = null,
                         tint = WarningOrange,
                         modifier = Modifier.size(16.dp)
@@ -217,13 +106,24 @@ private fun CustomerItem(customer: Customer, onRecordClick: (Customer) -> Unit) 
                     style = MaterialTheme.typography.bodyMedium.copy(fontWeight = FontWeight.SemiBold),
                     modifier = Modifier.weight(1f)
                 )
-                Button(onClick = { onRecordClick(customer) }, shape = RoundedCornerShape(8.dp)) {
+                Button(
+                    onClick = { onRecordClick(customer) },
+                    shape = RoundedCornerShape(3.dp),
+                    contentPadding = PaddingValues(horizontal = 20.dp, vertical = 4.dp),
+                    modifier = Modifier.height(25.dp),
+                    colors = ButtonDefaults.buttonColors(
+                        containerColor = Color(0xFF14B8A6),
+                        contentColor = Color.White
+                    )
+                ) {
                     Text("Catat")
                 }
             }
+
             Spacer(modifier = Modifier.height(8.dp))
             Text(text = customer.userName, style = MaterialTheme.typography.bodyMedium)
             Spacer(modifier = Modifier.height(4.dp))
+
             Row(verticalAlignment = Alignment.CenterVertically) {
                 Text(
                     text = customer.fullAddress,
@@ -251,4 +151,31 @@ private fun CustomerItem(customer: Customer, onRecordClick: (Customer) -> Unit) 
     }
 }
 
-private enum class CustomerTab { NotRecorded, Recorded }
+@Preview(showBackground = true)
+@Composable
+private fun CustomerItemPreview() {
+    MaterialTheme(
+        colorScheme = lightColorScheme(
+            surface = LightGray,
+            background = LightGray
+        )
+    ) {
+        CustomerItem(
+            customer = DummyCustomers.customers[0],
+            onRecordClick = {}
+        )
+    }
+}
+
+@Preview(showBackground = true)
+@Composable
+private fun CustomerListScreenPreview() {
+    MaterialTheme(
+        colorScheme = lightColorScheme(
+            surface = LightGray,
+            background = LightGray
+        )
+    ) {
+        CustomerListScreen(customers = DummyCustomers.customers)
+    }
+}
