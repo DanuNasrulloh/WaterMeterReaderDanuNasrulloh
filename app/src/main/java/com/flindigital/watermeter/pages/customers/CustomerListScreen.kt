@@ -50,7 +50,7 @@ private val LightGray = Color(0xFFF1F5F9)
 private val WarningOrange = Color(0xFFFF8A00)
 
 @Composable
-fun CustomerListScreen() {
+fun CustomerListScreen(onNavigateCamera: () -> Unit = {}) {
     var selectedTab by remember { mutableStateOf(CustomerTab.NotRecorded) }
     var query by remember { mutableStateOf("") }
 
@@ -79,7 +79,7 @@ fun CustomerListScreen() {
             verticalArrangement = Arrangement.spacedBy(12.dp)
         ) {
             items(filtered) { customer ->
-                CustomerItem(customer = customer, onRecordClick = { /* TODO: integrate navigation */ })
+                CustomerItem(customer = customer, onRecordClick = { onNavigateCamera() })
             }
         }
     }
